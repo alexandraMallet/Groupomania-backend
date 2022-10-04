@@ -70,16 +70,21 @@ exports.login = (req, res, next) => {
 
 
 
-exports.unlog = (req, res, next) => {
-
-};
-
-
 exports.modifyUser = (req, res, next) => {
 
 };
 
 
 exports.deleteUser = (req, res, next) => {
+
+};
+
+
+exports.getOneUser = (req, res, next) => {
+
+};
+
+
+exports.getAllUser = (req, res, next) => {                       //admin
 
 };

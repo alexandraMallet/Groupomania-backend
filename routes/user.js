@@ -4,8 +4,10 @@ const userCtr = require("../controllers/user");
 
 router.post("/signup", userCtr.signup);
 router.post("/login", userCtr.login);
-router.put("/", userCtr.modifyUser);                   //chemin ?
-router.delete("/", userCtr.deleteUser);                   //chemin ?
-router.put("/", userCtr.unlog);                   //chemin ?
+router.put("/:id", userCtr.modifyUser);                   
+router.delete("/:id", userCtr.deleteUser);   
+router.get("/:id", userCtr.getOneUser);
+router.get("/", userCtr.getAllUser);                
+
 
 module.exports = router;
