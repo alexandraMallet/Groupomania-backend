@@ -21,10 +21,11 @@ exports.signup = (req, res, next) => {
             }
             bcrypt.hash(req.body.password, 10)                                                              // hachage du mot de passe
                 .then(hash => {
+                    const userObject = JSON.parse(req.body.user);
                     const user = new User({
-                        email: req.body.email,
+                        ...userObject,
                         password: hash,
-                       // avatarUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
+                        avatarUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
                     });
                     user.save()                                                                                        // enregistrement du nouvel user dans la BDD, après toutes les vérifications
                         .then(() => res.status(201).json({ message: `nouveau compte créé : ${req.body.email}` }))
@@ -35,19 +36,6 @@ exports.signup = (req, res, next) => {
         .catch(error => res.status(500).json({ error }));
 };
 
-// exports.createSauce = (req, res, next) => {
-//     const sauceObject = JSON.parse(req.body.sauce);
-//     delete sauceObject._userId;
-//     //delete sauceObject._id; ???
-//     const sauce = new Sauce({
-//         ...sauceObject,
-//         _userId: req.auth.userId,
-//         imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
-//     });
-//     sauce.save()
-//         .then(() => res.status(201).json({ message: "nouvelle sauce téléchargée" }))
-//         .catch(error => res.status(400).json({ error }));
-// };
 
 
 exports.login = (req, res, next) => {

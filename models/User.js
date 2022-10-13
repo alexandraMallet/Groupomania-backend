@@ -5,9 +5,9 @@ const mongooseError = require("mongoose-errors");
 const userSchema = mongoose.Schema({
     email: {type : String, required : true, unique : true},
     password: {type : String, required : true},
-    //avatarUrl: {type : String, required : true},
-    //pseudo: {type : String, required : true, unique : true},
-    //posts: {type : [String]}
+    avatarUrl: {type : String, required : true},
+    pseudo: {type : String, required : true, unique : true},
+    posts: {type : [String]}
 });
 
 userSchema.plugin(uniqueValidator);
