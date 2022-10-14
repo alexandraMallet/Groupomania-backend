@@ -21,22 +21,23 @@ exports.signup = (req, res, next) => {
             }
             bcrypt.hash(req.body.password, 10)                                                              // hachage du mot de passe
                 .then(hash => {
-                   const userObject = JSON.parse(req.body.user);
-                    const user = new User({   
-                        ...userObject,
+                    const user = new User({ 
                         email : req.body.email,
-                        password: hash,
                         pseudo : req.body.pseudo,
-                        avatarUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
+                        password: hash,
+                        avatarUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
                     });
                     user.save()                                                                                        // enregistrement du nouvel user dans la BDD, après toutes les vérifications
                         .then(() => res.status(201).json({ message: `nouveau compte créé ! pseudo : ${req.body.pseudo}, email : ${req.body.email}`}))
-                       // .catch(error => res.status(500).json({ error }));
+                        .catch(error => res.status(500).json({ error }));
                 })
-             //  .catch(error => res.status(500).json({ error }));
+               .catch(error => res.status(500).json({ error }));
         })
-       // .catch(error => res.status(500).json({ error }));
+        .catch(error => res.status(500).json({ error }));
 };
+
+
+
 
 
 
