@@ -6,10 +6,10 @@ exports.createPost = (req, res, next) => {
             userId: req.auth.userId,
             text : req.body.text,
             imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
-            createdAt: `${Date.now}`
+            //createdAt: `${Date.now}`
     });
     post.save()
-    .then(() => res.status(201).json({message : "publication crée"}))
+    .then(() => res.status(201).json({message : `Nouvelle publication : ${post.text}`}))
     .catch((error) => res.status(400).json({error}));
 };
 

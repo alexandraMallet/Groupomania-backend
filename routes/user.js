@@ -3,6 +3,7 @@ const router = express.Router();
 const userCtr = require("../controllers/user");
 const multer = require("../middleware/multer-config");
 
+
 router.post("/signup", multer, userCtr.signup);
 router.post("/login", userCtr.login);
 router.put("/:id", userCtr.modifyUser);                   
