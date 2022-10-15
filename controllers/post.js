@@ -15,7 +15,7 @@ exports.createPost = (req, res, next) => {
 
 
 exports.getAllPosts = (req, res, next) => {
-
+    
 };
 
 

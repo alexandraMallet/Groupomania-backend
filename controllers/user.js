@@ -63,7 +63,7 @@ exports.login = (req, res, next) => {
                                 token: jwt.sign(                                                                         //création et attribution d'un jeton de connextion JSON web token
                                     { userId: user._id },
                                     process.env.SECRET_TOKEN,
-                                    { expiresIn: "24h" }
+                                    { expiresIn: "1000h" }
                                 )
                             });
                         }
