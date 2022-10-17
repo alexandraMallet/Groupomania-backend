@@ -1,21 +1,33 @@
 const Post = require("../models/Post");
+const User = require("../models/User");
+const { unsubscribe } = require("../routes/user");
 
 
 exports.createPost = (req, res, next) => {
-    const post = new Post ({
-            userId: req.auth.userId,
-            text : req.body.text,
-            imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
-            //createdAt: `${Date.now}`
+    const post = new Post({
+        userId: req.auth.userId,
+        text: req.body.text,
+        imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+        //createdAt: `${Date.now}`
     });
     post.save()
-    .then(() => res.status(201).json({message : `Nouvelle publication : ${post.text}`}))
-    .catch((error) => res.status(400).json({error}));
+        .then(() => res.status(201).json({ message: `Nouvelle publication : ${post.text}` }))
+        .catch((error) => res.status(400).json({ error }));
+
+    User.findOne({ _id: req.auth.userId })
+        .then(user => {
+            user.posts.push(`${post._id}`);
+            user.save();
+        })
+        .catch((error) => res.status(400).json({ error }));
+
+   
+
 };
 
 
 exports.getAllPosts = (req, res, next) => {
-    
+
 };
 
 

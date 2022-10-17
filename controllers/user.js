@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const validEmail = /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/;        //regex pour l'email. Normalement pris en charge par le front, mais mieux vaux double sécurité
 const validPassword = /^[^\s]{8,}$/;                           //regex pour le password. idem email.
+const fs = require("fs");
                                                                
 
 
@@ -76,14 +77,31 @@ exports.login = (req, res, next) => {
 
 
 exports.getOneUser = (req, res, next) => {
-    User.findOne({_id : req.params.id})
+    User.findOne({_id : req.params.id}).populate("posts")
     .then((user) => res.status(200).json(user))
     //.catch((error) => res.status(404).json({error}));
 };
 
 
 exports.modifyUser = (req, res, next) => {
-
+    User.findOne({_id : req.params.id})
+    .then(user => {
+        if(user._id != req.auth.userId) {
+            return res.status(403).json({message : "ce compte n'est pas le vôtre, vous ne pouvez pas le modifier"});
+        }
+        if (req.file) {
+            fs.unlink(`images/${user.avatarUrl.split("/images/")[1]}`, () => {
+                User.updateOne({_id : req.params.id})
+                .then(() => res.status(200).json({message : "compte modifié"}))
+             //   .catch((error) => res.status(500).json({error}));
+            })
+        } else {
+            User.updateOne({_id : req.params.id})
+            .then(() => res.status(200).json({message : "compte modifié"}))
+          //  .catch((error) => res.status(500).json({error}));
+        }
+    })
+   // .catch((error) => res.status(400).json({error}));
 };
 
 

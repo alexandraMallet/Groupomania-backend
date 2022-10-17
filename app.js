@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const userRoutes = require("./routes/user");
 const postRoutes = require("./routes/post");
-const adminRoutes = require("./routes/admin");
 const dotenv = require("dotenv").config();
 const path = require("path");
 const helmet = require("helmet");
