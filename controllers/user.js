@@ -86,17 +86,18 @@ exports.getOneUser = (req, res, next) => {
 exports.modifyUser = (req, res, next) => {
     User.findOne({_id : req.params.id})
     .then(user => {
-        if(user._id != req.auth.userId) {
-            return res.status(403).json({message : "ce compte n'est pas le vôtre, vous ne pouvez pas le modifier"});
-        }
+        console.log(user);
+        // if(user._id != req.auth) {
+        //     return res.status(403).json({message : "ce compte n'est pas le vôtre, vous ne pouvez pas le modifier"});
+        // }
         if (req.file) {
             fs.unlink(`images/${user.avatarUrl.split("/images/")[1]}`, () => {
-                User.updateOne({_id : req.params.id})
+                User.updateOne({_id : req.params.id}, {...req.body, _id : req.params.id})
                 .then(() => res.status(200).json({message : "compte modifié"}))
              //   .catch((error) => res.status(500).json({error}));
             })
         } else {
-            User.updateOne({_id : req.params.id})
+            User.updateOne({_id : req.params.id}, {...req.body, _id : req.params.id})
             .then(() => res.status(200).json({message : "compte modifié"}))
           //  .catch((error) => res.status(500).json({error}));
         }
