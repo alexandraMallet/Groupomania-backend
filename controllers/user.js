@@ -84,18 +84,20 @@ exports.getOneUser = (req, res, next) => {
     //.catch((error) => res.status(404).json({error}));
 };
 
-//TODO lien vers nouvelle image
 exports.modifyUser = (req, res, next) => {
+
     User.findOne({_id : req.params.id})
     .then(user => {
-        console.log(req.body);
         if(user._id != req.auth.userId) {                   
             return res.status(403).json({message : "ce compte n'est pas le vôtre, vous ne pouvez pas le modifier"});
         }
         if (req.file) {
             fs.unlink(`images/${user.avatarUrl.split("/images/")[1]}`, () => {
-                imageUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
-                User.updateOne({_id : req.params.id}, {...req.body})                                     
+                user.avatarUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
+                User.updateOne({_id : req.params.id}, {
+                    ...req.body,
+                    avatarUrl : user.avatarUrl
+                })                                     
                 .then(() => res.status(200).json({message : "compte modifié"}))
              //   .catch((error) => res.status(500).json({error}));
             })
@@ -106,6 +108,7 @@ exports.modifyUser = (req, res, next) => {
         }
     })
    // .catch((error) => res.status(400).json({error}));
+  
 };
 
 
