@@ -5,7 +5,16 @@ const validEmail = /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/;        //regex pour l'em
 const validPassword = /^[^\s]{8,}$/;                           //regex pour le password. idem email.
 const fs = require("fs");
 const { crossOriginResourcePolicy } = require("helmet");
-                                                               
+
+
+
+
+const adminId = User.findOne({ pseudo: admin })
+    .then(user => {
+        return user.userId;
+    })
+    .catch((error) => res.status(500).json({error}));
+
 
 
 
@@ -24,17 +33,17 @@ exports.signup = (req, res, next) => {
             }
             bcrypt.hash(req.body.password, 10)                                                              // hachage du mot de passe
                 .then(hash => {
-                    const user = new User({ 
-                        email : req.body.email,
-                        pseudo : req.body.pseudo,
+                    const user = new User({
+                        email: req.body.email,
+                        pseudo: req.body.pseudo,
                         password: hash,
                         avatarUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
                     });
                     user.save()                                                                                        // enregistrement du nouvel user dans la BDD, après toutes les vérifications
-                        .then(() => res.status(201).json({ message: `nouveau compte créé ! pseudo : ${req.body.pseudo}, email : ${req.body.email}`}))
+                        .then(() => res.status(201).json({ message: `nouveau compte créé ! pseudo : ${req.body.pseudo}, email : ${req.body.email}` }))
                         .catch(error => res.status(500).json({ error }));
                 })
-               .catch(error => res.status(500).json({ error }));
+                .catch(error => res.status(500).json({ error }));
         })
         .catch(error => res.status(500).json({ error }));
 };
@@ -71,49 +80,61 @@ exports.login = (req, res, next) => {
                             });
                         }
                     })
-                  //  .catch(error => res.status(500).json({ error }));
+                //  .catch(error => res.status(500).json({ error }));
             }
         })
-      //  .catch(error => res.status(500).json({ error }));
+    //  .catch(error => res.status(500).json({ error }));
 };
 
 
 exports.getOneUser = (req, res, next) => {
-    User.findOne({_id : req.params.id}).populate("posts")
-    .then((user) => res.status(200).json(user))
+    User.findOne({ _id: req.params.id }).populate("posts")
+        .then((user) => res.status(200).json(user))
     //.catch((error) => res.status(404).json({error}));
 };
 
 exports.modifyUser = (req, res, next) => {
 
-    User.findOne({_id : req.params.id})
-    .then(user => {
-        if(user._id != req.auth.userId) {                   
-            return res.status(403).json({message : "ce compte n'est pas le vôtre, vous ne pouvez pas le modifier"});
-        }
-        if (req.file) {
-            fs.unlink(`images/${user.avatarUrl.split("/images/")[1]}`, () => {
-                user.avatarUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
-                User.updateOne({_id : req.params.id}, {
-                    ...req.body,
-                    avatarUrl : user.avatarUrl
-                })                                     
-                .then(() => res.status(200).json({message : "compte modifié"}))
-             //   .catch((error) => res.status(500).json({error}));
-            })
-        } else {
-            User.updateOne({_id : req.params.id}, {...req.body})
-            .then(() => res.status(200).json({message : "compte modifié"}))
-          //  .catch((error) => res.status(500).json({error}));
-        }
-    })
-   // .catch((error) => res.status(400).json({error}));
-  
+    User.findOne({ _id: req.params.id })
+        .then(user => {
+            if (user._id != req.auth.userId) {
+                return res.status(403).json({ message: "ce compte n'est pas le vôtre, vous ne pouvez pas le modifier" });
+            }
+            if (req.file) {
+                fs.unlink(`images/${user.avatarUrl.split("/images/")[1]}`, () => {
+                    user.avatarUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
+                    User.updateOne({ _id: req.params.id }, {
+                        ...req.body,
+                        avatarUrl: user.avatarUrl
+                    })
+                        .then(() => res.status(200).json({ message: "compte modifié" }))
+                    //   .catch((error) => res.status(500).json({error}));
+                })
+            } else {
+                User.updateOne({ _id: req.params.id }, { ...req.body })
+                    .then(() => res.status(200).json({ message: "compte modifié" }))
+                //  .catch((error) => res.status(500).json({error}));
+            }
+        })
+    // .catch((error) => res.status(400).json({error}));
+
 };
 
 
 exports.deleteUser = (req, res, next) => {
 
+    User.findOne({ _id: req.params.id })
+        .then(user => {
+            if (user._id != req.auth.userId || user._id != adminId) {
+                return res.status(409).json({ message: "ce compte n'est pas le vôtre." });
+            }
+            fs.unlink(`images/${user.avatarUrl.split("/images/")[1]}`, () => {
+                User.deleteOne({ _id: req.params.id })
+                    .then(() => res.status(200).json({ message: "compte supprimé" }))
+                    .catch((error) => res.status(400).json({ error }));
+            })
+        })
+        .catch((error) => res.status(500).json({ error }));
 };
 
 
