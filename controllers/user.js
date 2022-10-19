@@ -25,6 +25,7 @@ exports.signup = (req, res, next) => {
                         email: req.body.email,
                         pseudo: req.body.pseudo,
                         password: hash,
+                        isAdmin: false,
                         avatarUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
                     });
                     user.save()                                                                                        // enregistrement du nouvel user dans la BDD, après toutes les vérifications
@@ -81,6 +82,7 @@ exports.getOneUser = (req, res, next) => {
     //.catch((error) => res.status(404).json({error}));
 };
 
+//TODO : ajouter condition admin pour modify, pour qu'admin puisse modifier ses données
 exports.modifyUser = (req, res, next) => {
 
     User.findOne({ _id: req.params.id })
@@ -93,13 +95,17 @@ exports.modifyUser = (req, res, next) => {
                     user.avatarUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
                     User.updateOne({ _id: req.params.id }, {
                         ...req.body,
-                        avatarUrl: user.avatarUrl
+                        avatarUrl: user.avatarUrl,
+                        isAdmin: false
                     })
                         .then(() => res.status(200).json({ message: "compte modifié" }))
                     //   .catch((error) => res.status(500).json({error}));
                 })
             } else {
-                User.updateOne({ _id: req.params.id }, { ...req.body })
+                User.updateOne({ _id: req.params.id }, {
+                    ...req.body,
+                    isAdmin: false
+                })
                     .then(() => res.status(200).json({ message: "compte modifié" }))
                 //  .catch((error) => res.status(500).json({error}));
             }
