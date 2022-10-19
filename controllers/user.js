@@ -13,7 +13,7 @@ exports.signup = (req, res, next) => {
     if (!req.body.password.match(validPassword)) {
         return res.status(400).json({ message: "le mot de passe doit contenir au moins 8 caracères" });
     }
-    console.log(req.body);
+
     User.findOne({ email: req.body.email })                                                                  //recherche si l'email correspond déjà à un compte
         .then(user => {
             if (user) {                                                                                      //sécurité : impossible de créer 2 comptes avec le même email
@@ -91,29 +91,60 @@ exports.modifyUser = (req, res, next) => {
 
     User.findOne({ _id: req.params.id })
         .then(user => {
-          
+
             if (user._id != req.auth.userId) {
                 return res.status(403).json({ message: "ce compte n'est pas le vôtre, vous ne pouvez pas le modifier" });
             }
-            if (req.file) {
-                fs.unlink(`images/${user.avatarUrl.split("/images/")[1]}`, () => {
-                    user.avatarUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
+
+            if (req.body.password) {
+                bcrypt.hash(req.body.password, 10)
+                    .then(hash => {
+                        if (req.file) {
+                            fs.unlink(`images/${user.avatarUrl.split("/images/")[1]}`, () => {
+                                user.avatarUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
+                                User.updateOne({ _id: req.params.id }, {
+                                    ...req.body,
+                                    password: hash,
+                                    avatarUrl: user.avatarUrl,
+                                    isAdmin: !req.auth.isAdmin ? false : req.body.isAdmin
+                                })
+                                    .then(() => res.status(200).json({ message: "compte modifié" }))
+                                //   .catch((error) => res.status(500).json({error}));
+                            })
+                        } else {
+                            User.updateOne({ _id: req.params.id }, {
+                                ...req.body,
+                                password: hash,
+                                isAdmin: !req.auth.isAdmin ? false : req.body.isAdmin
+                            })
+                                .then(() => res.status(200).json({ message: "compte modifié" }))
+                            //  .catch((error) => res.status(500).json({error}));
+                        }
+                    })
+            } else {
+                if (req.file) {
+                    fs.unlink(`images/${user.avatarUrl.split("/images/")[1]}`, () => {
+                        user.avatarUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
+                        User.updateOne({ _id: req.params.id }, {
+                            ...req.body,
+                            avatarUrl: user.avatarUrl,
+                            isAdmin: !req.auth.isAdmin ? false : req.body.isAdmin
+                        })
+                            .then(() => res.status(200).json({ message: "compte modifié" }))
+                        //   .catch((error) => res.status(500).json({error}));
+                    })
+                } else {
                     User.updateOne({ _id: req.params.id }, {
                         ...req.body,
-                        avatarUrl: user.avatarUrl,
                         isAdmin: !req.auth.isAdmin ? false : req.body.isAdmin
                     })
                         .then(() => res.status(200).json({ message: "compte modifié" }))
-                    //   .catch((error) => res.status(500).json({error}));
-                })
-            } else {
-                User.updateOne({ _id: req.params.id }, {
-                    ...req.body,
-                    isAdmin: !req.auth.isAdmin ? false : req.body.isAdmin
-                })
-                    .then(() => res.status(200).json({ message: "compte modifié" }))
-                //  .catch((error) => res.status(500).json({error}));
+                    //  .catch((error) => res.status(500).json({error}));
+                }
             }
+
+
+
         })
     // .catch((error) => res.status(400).json({error}));
 
