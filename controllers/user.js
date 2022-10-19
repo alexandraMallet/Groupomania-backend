@@ -6,18 +6,6 @@ const validPassword = /^[^\s]{8,}$/;                           //regex pour le p
 const fs = require("fs");
 const { crossOriginResourcePolicy } = require("helmet");
 
-
-
-
-const adminId = User.findOne({ pseudo: admin })
-    .then(user => {
-        return user.userId;
-    })
-    .catch((error) => res.status(500).json({error}));
-
-
-
-
 exports.signup = (req, res, next) => {
     if (!req.body.email.match(validEmail)) {                                                             //regex évitent d'appeler inutilement la BDD en cas d'erreur de saisie
         return res.status(400).json({ message: "email incorrect" });
@@ -125,7 +113,7 @@ exports.deleteUser = (req, res, next) => {
 
     User.findOne({ _id: req.params.id })
         .then(user => {
-            if (user._id != req.auth.userId || user._id != adminId) {
+            if (user._id != req.auth.userId) {
                 return res.status(409).json({ message: "ce compte n'est pas le vôtre." });
             }
             fs.unlink(`images/${user.avatarUrl.split("/images/")[1]}`, () => {
