@@ -52,17 +52,22 @@ exports.login = (req, res, next) => {
     User.findOne({ email: req.body.email })                                                                  //recherche de l'user dans la BDD
         .then(user => {
             if (!user) {
-                return res.status(401).json({ message: "paire identifiant - mot de passe incorrecte" });      //si l'user n'est pas dans la BDD, le message ne le révèle pas explicitement
+                return res.status(401).json({ message: "paire identifiant - mot de passe incorrecte - A" });      //si l'user n'est pas dans la BDD, le message ne le révèle pas explicitement
             } else {
                 bcrypt.compare(req.body.password, user.password)
                     .then(valid => {
                         if (!valid) {                                                                                       //gestion erreur password
-                            return res.status(401).json({ message: "paire identifiant - mot de passe incorrecte" });
+                            return res.status(401).json({ message: "paire identifiant - mot de passe incorrecte - B" });
                         } else {
                             res.status(200).json({
                                 userId: user._id,
+                                isAdmin: user.isAdmin,
+                                pseudo: user.pseudo,
                                 token: jwt.sign(                                                                         //création et attribution d'un jeton de connextion JSON web token
-                                    { userId: user._id },
+                                    {
+                                        userId: user._id,
+                                        isAdmin: user.isAdmin
+                                    },
                                     process.env.SECRET_TOKEN,
                                     { expiresIn: "1000h" }
                                 )
@@ -82,11 +87,11 @@ exports.getOneUser = (req, res, next) => {
     //.catch((error) => res.status(404).json({error}));
 };
 
-//TODO : ajouter condition admin pour modify, pour qu'admin puisse modifier ses données
 exports.modifyUser = (req, res, next) => {
 
     User.findOne({ _id: req.params.id })
         .then(user => {
+          
             if (user._id != req.auth.userId) {
                 return res.status(403).json({ message: "ce compte n'est pas le vôtre, vous ne pouvez pas le modifier" });
             }
@@ -96,7 +101,7 @@ exports.modifyUser = (req, res, next) => {
                     User.updateOne({ _id: req.params.id }, {
                         ...req.body,
                         avatarUrl: user.avatarUrl,
-                        isAdmin: false
+                        isAdmin: !req.auth.isAdmin ? false : req.body.isAdmin
                     })
                         .then(() => res.status(200).json({ message: "compte modifié" }))
                     //   .catch((error) => res.status(500).json({error}));
@@ -104,7 +109,7 @@ exports.modifyUser = (req, res, next) => {
             } else {
                 User.updateOne({ _id: req.params.id }, {
                     ...req.body,
-                    isAdmin: false
+                    isAdmin: !req.auth.isAdmin ? false : req.body.isAdmin
                 })
                     .then(() => res.status(200).json({ message: "compte modifié" }))
                 //  .catch((error) => res.status(500).json({error}));
