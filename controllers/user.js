@@ -171,6 +171,14 @@ exports.deleteUser = (req, res, next) => {
 
 
 
-exports.getAllUser = (req, res, next) => {                       //admin
-
+exports.getAllUser = (req, res, next) => {  
+        if(!req.auth.isAdmin){
+            return res.status(409).json({message : "Requête impossible"})
+        }
+        else{
+            User.find()
+            .then(users => res.status(200).json(users))
+            .catch((error) => res.status(404).json({error}));
+        }
+    
 };
