@@ -155,12 +155,12 @@ exports.deleteUser = (req, res, next) => {
 
     User.findOne({ _id: req.params.id })
         .then(user => {
-            if (user._id != req.auth.userId) {
-                return res.status(409).json({ message: "ce compte n'est pas le vôtre." });
+            if (user._id != req.auth.userId && !req.auth.isAdmin) {
+                return res.status(409).json({ message: "Vous n'avez pas les droits pour supprimer ce compte" });
             }
             fs.unlink(`images/${user.avatarUrl.split("/images/")[1]}`, () => {
                 User.deleteOne({ _id: req.params.id })
-                    .then(() => res.status(200).json({ message: "compte supprimé" }))
+                    .then(() => res.status(200).json({ message: `compte ${user._id} attaché au mail ${user.email}, et au pseudo ${user.pseudo} supprimé` }))
                     .catch((error) => res.status(400).json({ error }));
             })
         })
