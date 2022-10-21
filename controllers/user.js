@@ -109,7 +109,7 @@ exports.modifyUser = (req, res, next) => {
                                     isAdmin: !req.auth.isAdmin ? false : req.body.isAdmin
                                 })
                                     .then(() => res.status(200).json({ message: "compte modifié" }))
-                                //   .catch((error) => res.status(500).json({error}));
+                                  .catch((error) => res.status(500).json({error}));
                             })
                         } else {
                             User.updateOne({ _id: req.params.id }, {
