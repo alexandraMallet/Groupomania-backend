@@ -8,7 +8,8 @@ const postSchema = new mongoose.Schema({
     text : {type : String},
     imageUrl : {type : String},
     usersLiked : {type : Number, default : 0},
-    createdAt : {type : Date, required : true}
+    createdAt : {type : Date, required : true},
+    modifiedAt: {type : Date}
 });
 
 postSchema.plugin(mongooseError);

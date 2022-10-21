@@ -50,14 +50,18 @@ exports.modifyPost = (req, res, next) => {
 
                     Post.updateOne({ _id: req.params.id }, {
                         ...req.body,
-                        imageUrl: post.imageUrl
+                        imageUrl: post.imageUrl,
+                        modifiedAt: `${Date.now()}`
                     })
                         .then(() => res.status(200).json({ message: "publication modifiée" }))
                         .catch((error) => res.status(400).json({ error }));
                 })
             } else {
 
-                Post.updateOne({ _id: req.params.id }, { ...req.body })
+                Post.updateOne({ _id: req.params.id }, {
+                    ...req.body,
+                    modifiedAt: `${Date.now()}`
+                })
                     .then(() => res.status(200).json({ message: "publication modifiée" }))
                     .catch((error) => res.status(400).json({ error }));
             }
