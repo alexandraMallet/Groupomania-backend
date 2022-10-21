@@ -69,18 +69,18 @@ exports.modifyPost = (req, res, next) => {
 exports.deletePost = (req, res, next) => {
 
     Post.findById(req.params.id)
-    .then(post => {
-        if (post.userId != req.auth.userId && !req.auth.isAdmin) {
-            return res.status(409).json({message : "Vous n'avez pas les droits pour supprimer cette publication."});
-        }
+        .then(post => {
+            if (post.userId != req.auth.userId && !req.auth.isAdmin) {
+                return res.status(409).json({ message: "Vous n'avez pas les droits pour supprimer cette publication." });
+            }
 
-        fs.unlink(`images/${post.imageUrl.split("/images/")[1]}`, () => {
-            Post.deleteOne({_id : req.params.id})
-            .then(() => res.status(200).json({message : "publication supprimée"}))
-            .catch((error) => res.status(400).json({error}))
+            fs.unlink(`images/${post.imageUrl.split("/images/")[1]}`, () => {
+                Post.deleteOne({ _id: req.params.id })
+                    .then(() => res.status(200).json({ message: "publication supprimée" }))
+                    .catch((error) => res.status(400).json({ error }))
+            })
+
         })
-        
-    })
-    .catch((error) => res.status(500).json({error}));
+        .catch((error) => res.status(500).json({ error }));
 
 };
