@@ -15,7 +15,7 @@ exports.createPost = (req, res, next) => {
 
     User.findOne({ _id: req.auth.userId })
         .then(user => {
-            user.posts.push(`${post._id}`);
+            user.posts.push(`${post._id}`); 
             user.save();
         })
     // .catch((error) => res.status(400).json({ error }));

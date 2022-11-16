@@ -69,7 +69,7 @@ exports.login = (req, res, next) => {
                                         isAdmin: user.isAdmin
                                     },
                                     process.env.SECRET_TOKEN,
-                                    { expiresIn: "1000h" }
+                                    { expiresIn: "4h" }
                                 )
                             });
                         }
@@ -178,7 +178,7 @@ exports.getAllUser = (req, res, next) => {
         else{
             User.find()
             .then(users => res.status(200).json(users))
-            .catch((error) => res.status(404).json({error}));
+            // .catch((error) => res.status(404).json({error}));
         }
     
 };
