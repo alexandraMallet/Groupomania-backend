@@ -89,3 +89,78 @@ exports.deletePost = (req, res, next) => {
         .catch((error) => res.status(500).json({ error }));
 
 };
+
+exports.likeDislikePost = (req, res, next) => {
+
+    Post.findOne({ _id: req.params.id })                                                             //on cherche la publication dans la BDD
+        .then((post) => {
+            const user = req.auth.userId;                                                              //on place l'userId connecté dans une constante
+            const userLiked = post.usersLiked.find(e => e == user);                                   //on place l'userId cherché dans le tableau des likes dans une constante
+            const userDisliked = post.usersDisliked.find(e => e == user);                             //on place l'userId cherché dans le tableau des dislikes dans une constante
+
+            if (!userLiked && !userDisliked) {                                                 //cas où l'user connecté n'a encore ni liké ni disliké la publication
+                switch (req.body.like) {
+                    case 0:                                                                      // et qu'il reste neutre
+                        res.status(404).json({ message: "rien à supprimer" });
+                        break;
+                    case 1:                                                                       // et qu'il like
+                        post.likes += 1;
+                        post.usersLiked.push(`${user}`);
+                        post.save()
+                            .then(() => res.status(201).json({ message: "like ajouté" }))
+                            .catch(error => res.status(500).json({ error }));
+                        break;
+                    case -1:                                                                       // et qu'il dislike
+                        post.dislikes += 1;
+                        post.usersDisliked.push(`${user}`);
+                        post.save()
+                            .then(() => res.status(201).json({ message: "dislike ajouté" }))
+                            .catch(error => res.status(500).json({error}));
+                }
+                return;
+            }
+            if (userLiked) {                                                                          //cas où l'user a déjà liké la publication
+                switch (req.body.like) {
+                    case 0:                                                                            // et qu'il annule son like sans disliker
+                        post.likes -= 1;
+                        post.usersLiked = post.usersLiked.filter(e => e != `${user}`);
+                        post.save()
+                            .then(() => res.status(200).json({ message: "like supprimé" }))
+                            .catch(error => res.status(500).json({ error }));
+                        break;
+                    case 1:                                                                            // et qu'il tente de liker à nouveau
+                        res.status(409).json({ message: "like déjà existant" });                       // (cas rendu normalement impossible par la logique du front mais à prévoir tout de même)
+                        break;
+                    case -1:                                                                               // et qu'il change son like pour un dislike
+                        post.dislikes += 1;
+                        post.usersDisliked.push(`${user}`);
+                        post.save()
+                            .then(() => res.status(201).json({ message: "like supprimé et dislike ajouté" }))
+                            .catch(error => res.status(500).json({ error }));
+                }
+                return;
+            }
+
+            if (userDisliked) {                                                                           // cas où l'user a déjà disliké la publication
+                switch (req.body.like) {
+                    case 0:                                                                                 // et qu'il annule son dislike sans liker
+                        post.dislikes -= 1;
+                        post.usersDisliked = post.usersDisliked.filter(e => e != `${user}`);
+                        post.save()
+                            .then(() => res.status(200).json({ message: "dislike supprimé" }))
+                            .catch(error => res.status(500).json({ error }));
+                        break;
+                    case 1:                                                                                  // et qu'il change son dislike pour un like
+                        post.likes += 1;
+                        post.usersLiked.push(`${user}`); 
+                        post.save()
+                            .then(() => res.status(201).json({ message: "like supprimé et dislike ajouté" }))
+                            .catch(error => res.status(500).json({ error }));
+                        break;
+                    case -1:                                                                                // et qu'il tente de disliker une seconde fois
+                        res.status(409).json({ message: "dislike déjà existant" });                          // (même logique que tentative de 2 likes)
+                }
+            }
+        })
+        .catch(error => res.status(500).json({ error }));
+};
