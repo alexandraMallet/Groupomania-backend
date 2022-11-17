@@ -9,6 +9,6 @@ router.get("/", auth, postCtr.getAllPosts);
 router.get("/:id", auth, postCtr.getOnePost);
 router.put("/:id", auth, multer, postCtr.modifyPost);
 router.delete("/:id", auth, multer, postCtr.deletePost);
-router.post("/:id/like", auth, postCrt.likeDislikePost);
+router.post("/:id/like", auth, postCtr.likeDislikePost);
 
 module.exports = router;

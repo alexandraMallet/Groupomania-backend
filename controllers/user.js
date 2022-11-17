@@ -69,7 +69,7 @@ exports.login = (req, res, next) => {
                                         isAdmin: user.isAdmin
                                     },
                                     process.env.SECRET_TOKEN,
-                                    { expiresIn: "4h" }
+                                    { expiresIn: "24h" }
                                 )
                             });
                         }
