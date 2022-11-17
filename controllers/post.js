@@ -5,6 +5,7 @@ const fs = require("fs");
 exports.createPost = (req, res, next) => {
     const post = new Post({
         userId: req.auth.userId,
+        userPseudo: req.body.userPseudo,
         text: req.body.text,
         imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
         createdAt: `${Date.now()}`
