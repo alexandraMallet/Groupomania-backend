@@ -10,7 +10,11 @@ const postSchema = new mongoose.Schema({
     imageUrl : {type : String},
     usersLiked : {type : Number, default : 0},
     createdAt : {type : Date, required : true},
-    modifiedAt: {type : Date}
+    modifiedAt: {type : Date},
+    likes : {type : Number, default : 0},
+    dislikes : {type : Number, default : 0},
+    usersLiked : {type : [String]},
+    usersDisliked : {type : [String]}
 });
 
 postSchema.plugin(mongooseError);
