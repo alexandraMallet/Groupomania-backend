@@ -4,7 +4,7 @@ const User = require("../models/User");
 const validEmail = /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/;        //regex pour l'email. Normalement pris en charge par le front, mais mieux vaux double sécurité
 const validPassword = /^[^\s]{8,}$/;                           //regex pour le password. idem email.
 const fs = require("fs");
-const { crossOriginResourcePolicy } = require("helmet");
+// const { crossOriginResourcePolicy } = require("helmet");
 
 exports.signup = (req, res, next) => {
     if (!req.body.email.match(validEmail)) {                                                             //regex évitent d'appeler inutilement la BDD en cas d'erreur de saisie
@@ -29,17 +29,25 @@ exports.signup = (req, res, next) => {
                         avatarUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
                     });
                     user.save()                                                                                        // enregistrement du nouvel user dans la BDD, après toutes les vérifications
-                        .then(() => res.status(201).json({ message: `nouveau compte créé ! pseudo : ${req.body.pseudo}, email : ${req.body.email}` }))
+                        .then(() => res.status(200).json({
+                            userId: user._id,
+                            isAdmin: user.isAdmin,
+                            pseudo: user.pseudo,
+                            token: jwt.sign(                                                                         //création et attribution d'un jeton de connextion JSON web token
+                                {
+                                    userId: user._id,
+                                    isAdmin: user.isAdmin
+                                },
+                                process.env.SECRET_TOKEN,
+                                { expiresIn: "24h" }
+                            )
+                        }))
                         .catch(error => res.status(500).json({ error }));
                 })
                 .catch(error => res.status(500).json({ error }));
         })
         .catch(error => res.status(500).json({ error }));
 };
-
-
-
-
 
 
 exports.login = (req, res, next) => {
