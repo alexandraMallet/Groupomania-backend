@@ -41,7 +41,7 @@ exports.getOnePost = (req, res, next) => {
 exports.modifyPost = (req, res, next) => {
     Post.findById(req.params.id)
         .then(post => {
-            if (post.userId != req.auth.userId) {
+            if (post.userId != req.auth.userId && !req.auth.isAdmin) {
                 return res.status(409).json({ message: "Vous n'avez pas les droits pour modifier cette publication." });
             }
 
