@@ -8,23 +8,26 @@ exports.createPost = (req, res, next) => {
         userPseudo: req.body.userPseudo,
         text: req.body.text,
         imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
-        createdAt: `${Date.now()}`
+        createdAt: `${Date.now()}`,
     });
-    post.save()
-        .then(() => res.status(201).json({ message: `Nouvelle publication : ${post.text}` }))
-    // .catch((error) => res.status(400).json({ error }));
-
     User.findOne({ _id: req.auth.userId })
         .then(user => {
-            user.posts.push(`${post._id}`); 
+            user.posts.push(`${post._id}`);
             user.save();
         })
+    // .catch((error) => res.status(400).json({ error }));
+
+    post.user.push(`${req.auth.userId}`);
+    post.save()
+        .then(() => res.status(201).json({ message: `Nouvelle publication : ${post.text}` }))
+
+
     // .catch((error) => res.status(400).json({ error }));
 };
 
 
 exports.getAllPosts = (req, res, next) => {
-    Post.find()
+    Post.find().populate("user")
         .then((posts) => res.status(200).json({ posts }))
         .catch((error) => res.status(404).json({ error }));
 
@@ -32,7 +35,7 @@ exports.getAllPosts = (req, res, next) => {
 
 
 exports.getOnePost = (req, res, next) => {
-    Post.findById(req.params.id)
+    Post.findById(req.params.id).populate("user")
         .then(post => res.status(200).json(post))
         .catch((error) => res.status(404).json({ error }));
 };
@@ -115,7 +118,7 @@ exports.likeDislikePost = (req, res, next) => {
                         post.usersDisliked.push(`${user}`);
                         post.save()
                             .then(() => res.status(201).json({ message: "dislike ajouté" }))
-                            .catch(error => res.status(500).json({error}));
+                            .catch(error => res.status(500).json({ error }));
                 }
                 return;
             }
@@ -152,7 +155,7 @@ exports.likeDislikePost = (req, res, next) => {
                         break;
                     case 1:                                                                                  // et qu'il change son dislike pour un like
                         post.likes += 1;
-                        post.usersLiked.push(`${user}`); 
+                        post.usersLiked.push(`${user}`);
                         post.save()
                             .then(() => res.status(201).json({ message: "like supprimé et dislike ajouté" }))
                             .catch(error => res.status(500).json({ error }));
