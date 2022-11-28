@@ -158,6 +158,11 @@ exports.modifyUser = (req, res, next) => {
 
 };
 
+// exports.getOneUser = (req, res, next) => {
+//     User.findOne({ _id: req.params.id }).populate("posts")
+//         .then((user) => res.status(200).json(user))
+//     //.catch((error) => res.status(404).json({error}));
+// };
 
 exports.deleteUser = (req, res, next) => {
 

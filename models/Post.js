@@ -5,12 +5,11 @@ const mongooseError = require("mongoose-errors");
 
 const postSchema = new mongoose.Schema({
     userId : {type : String, required : true},
-    // userPseudo : {type: String, required : true},
     text : {type : String},
     imageUrl : {type : String},
     usersLiked : {type : Number, default : 0},
-    createdAt : {type : Date, required : true},
-    modifiedAt: {type : Date},
+    createdAt : {type : String, required : true},
+    modifiedAt: {type : String},
     modifiedBy: {type: String},
     likes : {type : Number, default : 0},
     usersLiked : {type : [String]},

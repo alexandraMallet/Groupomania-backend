@@ -5,10 +5,9 @@ const fs = require("fs");
 exports.createPost = (req, res, next) => {
     const post = new Post({
         userId: req.auth.userId,
-        // userPseudo: req.body.userPseudo,
         text: req.body.text,
         imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
-        createdAt: `${Date.now()}`,
+        createdAt: `${new Date().toLocaleDateString("fr")}`,
     });
     User.findOne({ _id: req.auth.userId })
         .then(user => {
@@ -56,7 +55,7 @@ exports.modifyPost = (req, res, next) => {
                         ...req.body,
                         imageUrl: post.imageUrl,
                         modifedBy: req.auth.isAdmin ? 'admin' : post.user[0].pseudo,
-                        modifiedAt: `${Date.now()}`
+                        modifiedAt: `${new Date().toLocaleDateString("fr")}`
                     })
                         .then(() => res.status(200).json({ message: "publication modifiée" }))
                         .catch((error) => res.status(400).json({ error }));
@@ -66,7 +65,7 @@ exports.modifyPost = (req, res, next) => {
                 Post.updateOne({ _id: req.params.id }, {
                     ...req.body,
                     modifedBy: req.auth.isAdmin ? 'admin' : post.user[0].pseudo,
-                    modifiedAt: `${Date.now()}`
+                    modifiedAt: `${new Date().toLocaleDateString("fr")}`
                 })
                     .then(() => res.status(200).json({ message: "publication modifiée" }))
                     .catch((error) => res.status(400).json({ error }));
