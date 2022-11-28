@@ -5,7 +5,7 @@ const fs = require("fs");
 exports.createPost = (req, res, next) => {
     const post = new Post({
         userId: req.auth.userId,
-        userPseudo: req.body.userPseudo,
+        // userPseudo: req.body.userPseudo,
         text: req.body.text,
         imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
         createdAt: `${Date.now()}`,
@@ -55,6 +55,7 @@ exports.modifyPost = (req, res, next) => {
                     Post.updateOne({ _id: req.params.id }, {
                         ...req.body,
                         imageUrl: post.imageUrl,
+                        modifedBy: req.auth.isAdmin ? 'admin' : post.user[0].pseudo,
                         modifiedAt: `${Date.now()}`
                     })
                         .then(() => res.status(200).json({ message: "publication modifiée" }))

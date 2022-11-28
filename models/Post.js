@@ -5,7 +5,7 @@ const mongooseError = require("mongoose-errors");
 
 const postSchema = new mongoose.Schema({
     userId : {type : String, required : true},
-    userPseudo : {type: String, required : true},
+    // userPseudo : {type: String, required : true},
     text : {type : String},
     imageUrl : {type : String},
     usersLiked : {type : Number, default : 0},
