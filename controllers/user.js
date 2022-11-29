@@ -4,6 +4,7 @@ const User = require("../models/User");
 const validEmail = /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/;        //regex pour l'email. Normalement pris en charge par le front, mais mieux vaux double sécurité
 const validPassword = /^[^\s]{8,}$/;                           //regex pour le password. idem email.
 const fs = require("fs");
+const Post = require("../models/Post");
 // const { crossOriginResourcePolicy } = require("helmet");
 
 exports.signup = (req, res, next) => {
@@ -117,7 +118,7 @@ exports.modifyUser = (req, res, next) => {
                                     isAdmin: !req.auth.isAdmin ? false : req.body.isAdmin
                                 })
                                     .then(() => res.status(200).json({ message: "compte modifié" }))
-                                  .catch((error) => res.status(500).json({error}));
+                                    .catch((error) => res.status(500).json({ error }));
                             })
                         } else {
                             User.updateOne({ _id: req.params.id }, {
@@ -173,6 +174,8 @@ exports.deleteUser = (req, res, next) => {
             }
             fs.unlink(`images/${user.avatarUrl.split("/images/")[1]}`, () => {
                 User.deleteOne({ _id: req.params.id })
+                    .then(() => Post.deleteMany({ userId: req.params.id }))
+                    // .then(() => Like.deleteMany({userId: req.params.id}))
                     .then(() => res.status(200).json({ message: `compte ${user._id} attaché au mail ${user.email}, et au pseudo ${user.pseudo} supprimé` }))
                     .catch((error) => res.status(400).json({ error }));
             })
@@ -184,14 +187,14 @@ exports.deleteUser = (req, res, next) => {
 
 
 
-exports.getAllUser = (req, res, next) => {  
-        if(!req.auth.isAdmin){
-            return res.status(409).json({message : "Requête impossible"})
-        }
-        else{
-            User.find()
+exports.getAllUser = (req, res, next) => {
+    if (!req.auth.isAdmin) {
+        return res.status(409).json({ message: "Requête impossible" })
+    }
+    else {
+        User.find()
             .then(users => res.status(200).json(users))
-            // .catch((error) => res.status(404).json({error}));
-        }
-    
+        // .catch((error) => res.status(404).json({error}));
+    }
+
 };

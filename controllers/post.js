@@ -3,12 +3,15 @@ const User = require("../models/User");
 const fs = require("fs");
 
 exports.createPost = (req, res, next) => {
+  
     const post = new Post({
         userId: req.auth.userId,
         text: req.body.text,
-        imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
-        createdAt: `${new Date().toLocaleDateString("fr")}`,
+        imageUrl: (req.file)? `${req.protocol}://${req.get("host")}/images/${req.file.filename}` : undefined,
+        // imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+        createdAt: `${new Date().toLocaleDateString("fr")}`
     });
+
     User.findOne({ _id: req.auth.userId })
         .then(user => {
             user.posts.push(`${post._id}`);
@@ -118,7 +121,8 @@ exports.addOrRemoveLike = (req, res, next) => {
                         .then(() => res.status(200).json({ message: "like supprimé" }))
                     // .catch(error => res.status(500).json({ error }));
                 }
-            }})
+            }
+        })
         .catch(() => res.status(500).json({ message: "erreur serveur - B" }));
 };
 
