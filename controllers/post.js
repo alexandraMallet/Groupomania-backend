@@ -8,7 +8,6 @@ exports.createPost = (req, res, next) => {
         userId: req.auth.userId,
         text: req.body.text,
         imageUrl: (req.file)? `${req.protocol}://${req.get("host")}/images/${req.file.filename}` : undefined,
-        // imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
         createdAt: `${new Date().toLocaleDateString("fr")}`
     });
 
